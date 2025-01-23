@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Npgsql;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Example.WebApi.Controllers
 {
@@ -8,108 +10,243 @@ namespace Example.WebApi.Controllers
     public class BookController : ControllerBase
     {
         private static List<Book>? _books=new List<Book>();
+        private const string CONNECTION_STRING = "Host=localhost:5432;" +
+        "Username=postgres;" +
+        "Password=leonpik7;" +
+        "Database=LibraryDB";
+      
 
+
+        [HttpGet("test-connection")]
+        public IActionResult TestConnection()
+        {
+
+            try
+            {
+                using ( var connection = new NpgsqlConnection(CONNECTION_STRING))
+                {
+                    connection.Open();
+                    if (connection.State == System.Data.ConnectionState.Open)
+                    {
+                        return Ok("Uspješno spojen na bazu");
+                    }
+                    else
+                    {
+                        return StatusCode(500, "Veza s bazom nije uspjela");
+                    }
+                    connection.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        
 
         [HttpGet]
-        public IActionResult GetBooks()
+        public ActionResult Get()
         {
-            if(_books==null)
+            List<Book> books = new List<Book>();
+            string commandText = $"SELECT * FROM Book";
+            try
             {
-                return NoContent();
-                
-            }else if (_books.Count() == 0)
-            {
-                return NotFound("There are no found books");
+                using (var connection = new NpgsqlConnection(CONNECTION_STRING))
+
+                {
+                    connection.Open();
+                    using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, connection))
+                    {
+
+                        
+
+                        using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                            while (reader.Read())
+                            {
+                                Book book = ReadBook(reader);
+                                books.Add(book);
+                               
+
+                            }
+
+                    }
+                }
+                return Ok(books);
             }
-            else
+            
+            catch (Exception ex)
             {
-                return Ok(_books);
+                return BadRequest($"Došlo je do greške: {ex.Message}");
             }
-          
+
+            return null;
         }
+
+
+        private Book ReadBook(NpgsqlDataReader reader)
+        {
+            Guid id = Guid.Parse(reader["id"].ToString());
+            string author = reader["author"] as string;
+            string title = reader["title"] as string;
+            string description = reader["description"] as string;
+            int quantity =(int) reader["quantity"];
+
+            Book book = new Book(title, description, author, (int)quantity, id);
+           
+            return book;
+        }
+
 
         [HttpGet("{id}")]
-        public IActionResult GetBook(Guid id)
+        public  ActionResult Get(Guid id)
         {
-            var book=_books.FirstOrDefault(b=>b.Id.Equals(id));
-            if (book == null)
+            string commandText = $"SELECT * FROM Book WHERE Id = @id";
+            try
             {
-                return NoContent();
+                using (var connection = new NpgsqlConnection(CONNECTION_STRING))
+                   
+                {
+                     connection.Open();
+                     using (NpgsqlCommand cmd = new NpgsqlCommand(commandText, connection))
+                    {
+                        cmd.Parameters.AddWithValue("id", id);
+
+                        using (NpgsqlDataReader reader =  cmd.ExecuteReader())
+                            while ( reader.Read())
+                            {
+                                Book book = ReadBook(reader);
+                                  return Ok(book);
+                            }
+                     
+                    }
+                }
+                }
+            catch (Exception ex)
+            {
+                return BadRequest($"Došlo je do greške: {ex.Message}");
             }
-            return Ok(book);
+         
+            return null;
         }
+
+
+      
+
+
+
 
         [HttpPost]
-        public IActionResult AddBook( Book newBook)
+        public  IActionResult AddBook(Book newBook)
         {
+            string commandText = $"INSERT INTO Book (Id, Title, Author, Description, Quantity) " +
+                                 $"VALUES (@id, @title, @author, @description, @quantity)";
 
-          
-            if (newBook == null)
+            try
             {
-                return BadRequest("Book object cannot be null.");
+                using (var connection = new NpgsqlConnection(CONNECTION_STRING))
+                {
+                     connection.OpenAsync();  
+
+                    using (var cmd = new NpgsqlCommand(commandText, connection))
+                    {
+                     
+                        cmd.Parameters.AddWithValue("id", newBook.Id);
+                        cmd.Parameters.AddWithValue("title", newBook.Title);
+                        cmd.Parameters.AddWithValue("author", newBook.Author);
+                        cmd.Parameters.AddWithValue("description", newBook.Description);
+                        cmd.Parameters.AddWithValue("quantity", newBook.Quantity);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return Ok("Knjiga uspješno dodana");
             }
-
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (_books.Any(b => b.Id.Equals(newBook.Id)))
+            catch (Exception ex)
             {
-                return BadRequest("There already exits a book with the same id");
+                return BadRequest($"Došlo je do greške: {ex.Message}");
             }
-
-
-            _books.Add(newBook);
-            return Created();
-
         }
 
 
 
-        // Nova POST ruta koja prima parametre kroz URL
-        [HttpPost("add/{title}/{description}/{author}/{quantity}")]
-        public IActionResult AddBookWithParams(string title, string description, string author, int quantity)
-        {
-            var newBook = new Book(title, description, author, quantity);
-
-            
-            _books.Add(newBook);
-
-            return CreatedAtAction(nameof(GetBook), new { id = newBook.Id }, newBook);
-        }
+    
 
 
         [HttpPut("{id}")]
-        public IActionResult UpdateBook(Guid id,[FromBody] Book updatedBook)
+        public  IActionResult UpdateBook(Guid id,[FromBody] Book updatedBook)
         {
 
 
-            var book = _books.FirstOrDefault(b => b.Id.Equals(id));
-            if (book == null)
+            var commandText = $"UPDATE Book SET Title = @title, Author=@author, Description=@description, Quantity=@quantity WHERE Id = @id";
+
+            try
             {
-                return NotFound("Book isnt found.");
+                using (var connection = new NpgsqlConnection(CONNECTION_STRING))
+                {
+                     connection.Open();
+
+                    using (var cmd = new NpgsqlCommand(commandText, connection))
+                    {
+
+                     
+                        cmd.Parameters.AddWithValue("title", updatedBook.Title);
+                        cmd.Parameters.AddWithValue("author", updatedBook.Author);
+                        cmd.Parameters.AddWithValue("description", updatedBook.Description);
+                        cmd.Parameters.AddWithValue("quantity", updatedBook.Quantity);
+                      
+
+                        cmd.Parameters.AddWithValue("Id", id); 
+
+
+                         cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return Ok("Knjiga uspješno dodana");
             }
-
-            book.Title = updatedBook.Title;
-            book.Description = updatedBook.Description;
-            book.Author = updatedBook.Author;
-            book.Quantity = updatedBook.Quantity;
-
-            return Ok(book);
+            catch (Exception ex)
+            {
+                return BadRequest($"Došlo je do greške: {ex.Message}");
+            }
         }
+
+
 
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteBook(Guid id)
+        public  IActionResult DeleteBook(Guid id)
         {
-         
-            var book = _books.FirstOrDefault(b => b.Id.Equals(id));
-            if (book == null)
+
+
+            var commandText = $"DELETE FROM Book WHERE Id = @id";
+
+            try
             {
-                return NotFound("Book isnt found.");
+                using (var connection = new NpgsqlConnection(CONNECTION_STRING))
+                {
+                     connection.Open();
+
+                    using (var cmd = new NpgsqlCommand(commandText, connection))
+                    {
+
+
+
+                        cmd.Parameters.AddWithValue("Id", id);
+
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return Ok("Knjiga uspješno izbrisana");
             }
-            _books.Remove(book);
-            return Ok();
+            catch (Exception ex)
+            {
+                return BadRequest($"Došlo je do greške: {ex.Message}");
+            }
         }
+
     }
 }

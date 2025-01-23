@@ -25,5 +25,19 @@ namespace Example.WebApi.Controllers
         }
 
 
+        public Book(string title, string description, string author, int quantity, Guid id)
+        {
+            Title = title;
+            Description = description;
+            Author = author;
+            Id = id;
+            Quantity = quantity;
+        }
+
+
+
+
+
+
     }
 }
