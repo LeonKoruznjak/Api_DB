@@ -11,14 +11,14 @@ namespace Repository
     {
         private const string CONNECTION_STRING = "Host=localhost:5432;Username=postgres;Password=leonpik7;Database=LibraryDB";
 
-        public async Task<List<Book>> GetAllBooks()
+        public async Task<List<Book>> GetAllBooksAsync()
         {
             var books = new List<Book>();
             string commandText = "SELECT * FROM Book";
 
             using (var connection = new NpgsqlConnection(CONNECTION_STRING))
             {
-                await connection.OpenAsync();
+                connection.Open();
                 using (var cmd = new NpgsqlCommand(commandText, connection))
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
@@ -33,13 +33,13 @@ namespace Repository
             return books;
         }
 
-        public async Task<Book> GetBookById(Guid id)
+        public async Task<Book> GetBookByIdAsync(Guid id)
         {
             string commandText = "SELECT * FROM Book WHERE Id = @id";
 
             using (var connection = new NpgsqlConnection(CONNECTION_STRING))
             {
-                await connection.OpenAsync();
+                connection.Open();
                 using (var cmd = new NpgsqlCommand(commandText, connection))
                 {
                     cmd.Parameters.AddWithValue("id", id);
@@ -55,13 +55,13 @@ namespace Repository
             return null;
         }
 
-        public async Task AddBook(Book newBook)
+        public async Task AddBookAsync(Book newBook)
         {
             string commandText = "INSERT INTO Book (Id, Title, Author, Description, Quantity) VALUES (@id, @title, @author, @description, @quantity)";
 
             using (var connection = new NpgsqlConnection(CONNECTION_STRING))
             {
-                await connection.OpenAsync();
+                connection.Open();
                 using (var cmd = new NpgsqlCommand(commandText, connection))
                 {
                     cmd.Parameters.AddWithValue("id", newBook.Id);
@@ -74,13 +74,13 @@ namespace Repository
             }
         }
 
-        public async Task UpdateBook(Guid id, Book updatedBook)
+        public async Task UpdateBookAsync(Guid id, Book updatedBook)
         {
             string commandText = "UPDATE Book SET Title = @title, Author = @author, Description = @description, Quantity = @quantity WHERE Id = @id";
 
             using (var connection = new NpgsqlConnection(CONNECTION_STRING))
             {
-                await connection.OpenAsync();
+                connection.Open();
                 using (var cmd = new NpgsqlCommand(commandText, connection))
                 {
                     cmd.Parameters.AddWithValue("id", id);
@@ -93,13 +93,13 @@ namespace Repository
             }
         }
 
-        public async Task DeleteBook(Guid id)
+        public async Task DeleteBookAsync(Guid id)
         {
             string commandText = "DELETE FROM Book WHERE Id = @id";
 
             using (var connection = new NpgsqlConnection(CONNECTION_STRING))
             {
-                await connection.OpenAsync();
+                connection.Open();
                 using (var cmd = new NpgsqlCommand(commandText, connection))
                 {
                     cmd.Parameters.AddWithValue("id", id);
