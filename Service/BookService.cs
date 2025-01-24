@@ -16,29 +16,29 @@ namespace Service
             Repository = new BookRepository();
         }
 
-        public List<Book> GetAllBooks()
+        public async Task<List<Book>> GetAllBooks()
         {
-            return Repository.GetAllBooks();
+            return await Repository.GetAllBooks();
         }
 
-        public Book GetBookById(Guid id)
+        public async Task<Book> GetBookById(Guid id)
         {
-            return Repository.GetBookById(id);
+            return await Repository.GetBookById(id);
         }
 
-        public void AddBook(Book newBook)
+        public async Task AddBook(Book newBook)
         {
-            Repository.AddBook(newBook);
+            await Repository.AddBook(newBook);
         }
 
-        public void UpdateBook(Guid id, Book updatedBook)
+        public async Task UpdateBook(Guid id, Book updatedBook)
         {
-            Repository.UpdateBook(id, updatedBook);
+            await Repository.UpdateBook(id, updatedBook);
         }
 
-        public void DeleteBook(Guid id)
+        public async Task DeleteBook(Guid id)
         {
-            Repository.DeleteBook(id);
+            await Repository.DeleteBook(id);
         }
     }
 }

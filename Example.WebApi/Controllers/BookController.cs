@@ -19,11 +19,11 @@ namespace Example.WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetBooks()
+        public async Task<IActionResult> GetBooks()
         {
             try
             {
-                var books = Service.GetAllBooks();
+                var books = await Service.GetAllBooks();
                 return books.Count > 0 ? Ok(books) : NotFound("Nema dostupnih knjiga");
             }
             catch (Exception ex)
@@ -33,12 +33,12 @@ namespace Example.WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetBook(Guid id)
+        public async Task<IActionResult> GetBook(Guid id)
 
         {
             try
             {
-                var book = Service.GetBookById(id);
+                var book = await Service.GetBookById(id);
                 return book != null ? Ok(book) : NotFound($"Knjiga s ID-jem {id} nije pronađena");
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace Example.WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddBook([FromBody] Book newBook)
+        public async Task<IActionResult> AddBook(Book newBook)
         {
             if (newBook == null)
             {
@@ -57,7 +57,7 @@ namespace Example.WebApi.Controllers
 
             try
             {
-                Service.AddBook(newBook);
+                await Service.AddBook(newBook);
                 return Ok("Knjiga uspješno dodana");
             }
             catch (Exception ex)
@@ -67,7 +67,7 @@ namespace Example.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateBook(Guid id, [FromBody] Book updatedBook)
+        public async Task<IActionResult> UpdateBook(Guid id, [FromBody] Book updatedBook)
         {
             if (updatedBook == null)
             {
@@ -76,13 +76,13 @@ namespace Example.WebApi.Controllers
 
             try
             {
-                var existingBook = Service.GetBookById(id);
+                var existingBook = await Service.GetBookById(id);
                 if (existingBook == null)
                 {
                     return NotFound($"Knjiga s ID-jem {id} nije pronađena");
                 }
 
-                Service.UpdateBook(id, updatedBook);
+                await Service.UpdateBook(id, updatedBook);
                 return Ok("Knjiga uspješno ažurirana");
             }
             catch (Exception ex)
@@ -92,17 +92,17 @@ namespace Example.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteBook(Guid id)
+        public async Task<IActionResult> DeleteBook(Guid id)
         {
             try
             {
-                var existingBook = Service.GetBookById(id);
+                var existingBook = await Service.GetBookById(id);
                 if (existingBook == null)
                 {
                     return NotFound($"Knjiga s ID-jem {id} nije pronađena");
                 }
 
-                Service.DeleteBook(id);
+                await Service.DeleteBook(id);
                 return Ok("Knjiga uspješno izbrisana");
             }
             catch (Exception ex)

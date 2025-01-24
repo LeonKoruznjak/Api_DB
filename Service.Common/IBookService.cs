@@ -9,14 +9,14 @@ namespace Service.Common
 {
     public interface IBookService
     {
-        public List<Book> GetAllBooks();
+        Task<List<Book>> GetAllBooks();
 
-        public Book GetBookById(Guid id);
+        Task<Book> GetBookById(Guid id);
 
-        public void AddBook(Book newBook);
+        Task AddBook(Book newBook);
 
-        public void UpdateBook(Guid id, Book updatedBook);
+        Task UpdateBook(Guid id, Book updatedBook);
 
-        public void DeleteBook(Guid id);
+        Task DeleteBook(Guid id);
     }
 }

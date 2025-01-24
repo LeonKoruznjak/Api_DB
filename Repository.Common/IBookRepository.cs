@@ -10,15 +10,15 @@ namespace Repository.Common
 {
     public interface IBookRepository
     {
-        List<Book> GetAllBooks();
+        Task<List<Book>> GetAllBooks();
 
-        Book GetBookById(Guid id);
+        Task<Book> GetBookById(Guid id);
 
-        void AddBook(Book newBook);
+        Task AddBook(Book newBook);
 
-        void UpdateBook(Guid id, Book updatedBook);
+        Task UpdateBook(Guid id, Book updatedBook);
 
-        void DeleteBook(Guid id);
+        Task DeleteBook(Guid id);
 
         Book ReadBook(NpgsqlDataReader reader);
     }

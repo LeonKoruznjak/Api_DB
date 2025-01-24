@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 namespace Model
 {
     public class Book
     {
         [Required]
         public string Title { get; set; }
+
         public string Description { get; set; }
         public string Author { get; set; }
         public Guid Id { get; set; }
         public int Quantity { get; set; }
-
 
         public Book(string title, string description, string author, int quantity)
         {
@@ -20,7 +21,6 @@ namespace Model
             Quantity = quantity;
         }
 
-
         public Book(string title, string description, string author, int quantity, Guid id)
         {
             Title = title;
@@ -30,5 +30,7 @@ namespace Model
             Quantity = quantity;
         }
 
+        public Book()
+        { }
     }
 }
