@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
-namespace Example.WebApi.Controllers
+namespace Model
 {
     public class Book
     {
@@ -11,10 +10,7 @@ namespace Example.WebApi.Controllers
         public Guid Id { get; set; }
         public int Quantity { get; set; }
 
-       
-      
 
-        
         public Book(string title, string description, string author, int quantity)
         {
             Title = title;
@@ -33,11 +29,6 @@ namespace Example.WebApi.Controllers
             Id = id;
             Quantity = quantity;
         }
-
-
-
-
-
 
     }
 }
