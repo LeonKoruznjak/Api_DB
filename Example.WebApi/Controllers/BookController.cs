@@ -4,6 +4,7 @@ using Service;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using Service.Common;
 
 namespace Example.WebApi.Controllers
 {
@@ -11,11 +12,11 @@ namespace Example.WebApi.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        public BookService Service;
+        public IBookService _service;
 
-        public BookController()
+        public BookController(IBookService service)
         {
-            Service = new BookService();
+            _service = service;
         }
 
         [HttpGet]
@@ -23,7 +24,7 @@ namespace Example.WebApi.Controllers
         {
             try
             {
-                var books = await Service.GetAllBooksAsync();
+                var books = await _service.GetAllBooksAsync();
                 return books.Count > 0 ? Ok(books) : NotFound("Nema dostupnih knjiga");
             }
             catch (Exception ex)
@@ -38,7 +39,7 @@ namespace Example.WebApi.Controllers
         {
             try
             {
-                var book = await Service.GetBookByIdAsync(id);
+                var book = await _service.GetBookByIdAsync(id);
                 return book != null ? Ok(book) : NotFound($"Knjiga s ID-jem {id} nije pronađena");
             }
             catch (Exception ex)
@@ -57,7 +58,7 @@ namespace Example.WebApi.Controllers
 
             try
             {
-                await Service.AddBookAsync(newBook);
+                await _service.AddBookAsync(newBook);
                 return Ok("Knjiga uspješno dodana");
             }
             catch (Exception ex)
@@ -76,13 +77,13 @@ namespace Example.WebApi.Controllers
 
             try
             {
-                var existingBook = await Service.GetBookByIdAsync(id);
+                var existingBook = await _service.GetBookByIdAsync(id);
                 if (existingBook == null)
                 {
                     return NotFound($"Knjiga s ID-jem {id} nije pronađena");
                 }
 
-                await Service.UpdateBookAsync(id, updatedBook);
+                await _service.UpdateBookAsync(id, updatedBook);
                 return Ok("Knjiga uspješno ažurirana");
             }
             catch (Exception ex)
@@ -96,13 +97,13 @@ namespace Example.WebApi.Controllers
         {
             try
             {
-                var existingBook = await Service.GetBookByIdAsync(id);
+                var existingBook = await _service.GetBookByIdAsync(id);
                 if (existingBook == null)
                 {
                     return NotFound($"Knjiga s ID-jem {id} nije pronađena");
                 }
 
-                await Service.DeleteBookAsync(id);
+                await _service.DeleteBookAsync(id);
                 return Ok("Knjiga uspješno izbrisana");
             }
             catch (Exception ex)

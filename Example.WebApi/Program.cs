@@ -1,4 +1,25 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Example.WebApi;
+using Example.WebApi.Controllers;
+using Repository;
+using Repository.Common;
+using Service;
+using Service.Common;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host
+    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+    .ConfigureContainer<ContainerBuilder>(containerBuilder =>
+    {
+        containerBuilder.RegisterType<BookRepository>().As<IBookRepository>();
+        containerBuilder.RegisterType<BookService>().As<IBookService>().SingleInstance(); //klasika je TRANSIENT netreba nikaj pisat
+
+        // containerBuilder.RegisterType<BookService>().As<IBookService>().InstancePerLifetimeScope(); SCOPED
+
+        //containerBuilder.RegisterType<BookService>().As<IBookService>().SingleInstance(); SINGLETON
+    });
 
 // Add services to the container.
 

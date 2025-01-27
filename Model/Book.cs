@@ -12,6 +12,10 @@ namespace Model
         public Guid Id { get; set; }
         public int Quantity { get; set; }
 
+        public Book()
+        {
+        }
+
         public Book(string title, string description, string author, int quantity)
         {
             Title = title;
@@ -29,8 +33,5 @@ namespace Model
             Id = id;
             Quantity = quantity;
         }
-
-        public Book()
-        { }
     }
 }

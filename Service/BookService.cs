@@ -4,41 +4,46 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Repository;
 using Service.Common;
+using Repository.Common;
 
 namespace Service
 {
     public class BookService : IBookService
     {
-        protected BookRepository Repository;
+        private IBookRepository _bookRepository;
 
-        public BookService()
+        public BookService(IBookRepository bookRepository)
         {
-            Repository = new BookRepository();
+            _bookRepository = bookRepository;
         }
 
         public async Task<List<Book>> GetAllBooksAsync()
         {
-            return await Repository.GetAllBooksAsync();
+            return await _bookRepository.GetAllBooksAsync();
         }
 
         public async Task<Book> GetBookByIdAsync(Guid id)
         {
-            return await Repository.GetBookByIdAsync(id);
+            return await _bookRepository.GetBookByIdAsync(id);
         }
 
         public async Task AddBookAsync(Book newBook)
         {
-            await Repository.AddBookAsync(newBook);
+            if (newBook.Id == null || newBook.Id == Guid.Empty)
+            {
+                newBook.Id = Guid.NewGuid();
+            }
+            await _bookRepository.AddBookAsync(newBook);
         }
 
         public async Task UpdateBookAsync(Guid id, Book updatedBook)
         {
-            await Repository.UpdateBookAsync(id, updatedBook);
+            await _bookRepository.UpdateBookAsync(id, updatedBook);
         }
 
         public async Task DeleteBookAsync(Guid id)
         {
-            await Repository.DeleteBookAsync(id);
+            await _bookRepository.DeleteBookAsync(id);
         }
     }
 }
