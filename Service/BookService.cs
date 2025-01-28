@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using Repository;
 using Service.Common;
 using Repository.Common;
+using Common;
 
 namespace Service
 {
@@ -17,9 +18,9 @@ namespace Service
             _bookRepository = bookRepository;
         }
 
-        public async Task<List<Book>> GetAllBooksAsync()
+        public async Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging)
         {
-            return await _bookRepository.GetAllBooksAsync();
+            return await _bookRepository.GetAllBooksAsync(sorting, paging);
         }
 
         public async Task<Book> GetBookByIdAsync(Guid id)

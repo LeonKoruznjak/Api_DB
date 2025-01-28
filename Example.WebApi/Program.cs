@@ -14,7 +14,7 @@ builder.Host
     .ConfigureContainer<ContainerBuilder>(containerBuilder =>
     {
         containerBuilder.RegisterType<BookRepository>().As<IBookRepository>();
-        containerBuilder.RegisterType<BookService>().As<IBookService>().SingleInstance(); //klasika je TRANSIENT netreba nikaj pisat
+        containerBuilder.RegisterType<BookService>().As<IBookService>(); //klasika je TRANSIENT netreba nikaj pisat
 
         // containerBuilder.RegisterType<BookService>().As<IBookService>().InstancePerLifetimeScope(); SCOPED
 

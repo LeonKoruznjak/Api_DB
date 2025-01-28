@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Repository.Common;
+using Common;
+using System.Text;
 
 namespace Repository
 {
@@ -11,16 +13,30 @@ namespace Repository
     {
         private const string CONNECTION_STRING = "Host=localhost:5432;Username=postgres;Password=leonpik7;Database=LibraryDB";
 
-        public async Task<List<Book>> GetAllBooksAsync()
+        public async Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging)
         {
             var books = new List<Book>();
-            string commandText = "SELECT * FROM Book";
 
             using (var connection = new NpgsqlConnection(CONNECTION_STRING))
             {
-                connection.Open();
-                using (var cmd = new NpgsqlCommand(commandText, connection))
+                using (var cmd = new NpgsqlCommand())
                 {
+                    cmd.Connection = connection;
+
+                    var commandText = new StringBuilder();
+                    commandText.Append("SELECT * FROM Book ");
+                    if (sorting != null)
+                    {
+                        commandText.Append($" ORDER BY {sorting.OrderBy} {sorting.SortOrder.ToUpper()} ");
+                    }
+                    if (paging != null)
+                    {
+                        commandText.Append($"OFFSET @OFFSET FETCH NEXT @ROWS ROWS ONLY;");
+                        cmd.Parameters.AddWithValue("@OFFSET", paging.PageNumber == 1 ? 0 : (paging.PageNumber - 1) * paging.Rpp); //bila je greska u +1, ako imamo 4 itema i zelimo dva po stranici, 2-1=1*2=2+1=3 i ofset je 3 onda znaci da prva 3 ne gledamo nego gledamo od 4. koji je ujedno i zadnji i zato je samo jednog izbacivao?
+                        cmd.Parameters.AddWithValue("@ROWS", paging.Rpp);
+                    }
+                    cmd.CommandText = commandText.ToString();
+                    connection.Open();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -30,6 +46,7 @@ namespace Repository
                     }
                 }
             }
+
             return books;
         }
 

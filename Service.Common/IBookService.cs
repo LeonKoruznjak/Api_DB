@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Common;
 using Model;
 
 namespace Service.Common
 {
     public interface IBookService
     {
-        Task<List<Book>> GetAllBooksAsync();
+        Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging);
 
         Task<Book> GetBookByIdAsync(Guid id);
 

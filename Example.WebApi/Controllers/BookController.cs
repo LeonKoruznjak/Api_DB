@@ -5,6 +5,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using Service.Common;
+using Common;
 
 namespace Example.WebApi.Controllers
 {
@@ -19,12 +20,38 @@ namespace Example.WebApi.Controllers
             _service = service;
         }
 
+        //[HttpGet]
+        //public async Task<IActionResult> GetBooksAsync()
+        //{
+        //    try
+        //    {
+        //        return books.Count > 0 ? Ok(books) : NotFound("Nema dostupnih knjiga");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Greška pri dohvaćanju knjiga: {ex.Message}");
+        //    }
+        //}
+
         [HttpGet]
-        public async Task<IActionResult> GetBooksAsync()
+        public async Task<IActionResult> GetBooksAsync([FromQuery] string orderBy = "Id", [FromQuery] string sortOrder = "asc", [FromQuery] int pageNumber = 1, [FromQuery] int rpp = 10)
         {
             try
             {
-                var books = await _service.GetAllBooksAsync();
+                var sorting = new Sorting
+                {
+                    OrderBy = orderBy,
+                    SortOrder = sortOrder
+                };
+
+                var paging = new Paging
+                {
+                    PageNumber = pageNumber,
+                    Rpp = rpp
+                };
+
+                var books = await _service.GetAllBooksAsync(sorting, paging);
+
                 return books.Count > 0 ? Ok(books) : NotFound("Nema dostupnih knjiga");
             }
             catch (Exception ex)
