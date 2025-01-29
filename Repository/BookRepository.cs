@@ -25,33 +25,11 @@ namespace Repository
 
                     var commandText = new StringBuilder("SELECT * FROM Book WHERE 1 = 1 ");
 
-                    if (!string.IsNullOrEmpty(bookFilter.Title))
-                    {
-                        commandText.Append(" AND Book.Title ILIKE @title");
-                        cmd.Parameters.AddWithValue("@title", $"%{bookFilter.Title}%");
-                    }
-                    if (!string.IsNullOrEmpty(bookFilter.Author))
-                    {
-                        commandText.Append(" AND Book.Author ILIKE @author");
-                        cmd.Parameters.AddWithValue("@author", $"%{bookFilter.Author}%");
-                    }
-                    if (bookFilter.Quantity.HasValue)
-                    {
-                        commandText.Append(" AND Book.Quantity = @quantity");
-                        cmd.Parameters.AddWithValue("@quantity", bookFilter.Quantity.Value);
-                    }
+                    ApplyFilters(cmd, commandText, bookFilter);
 
-                    if (sorting != null)
-                    {
-                        commandText.Append($" ORDER BY {sorting.OrderBy} {sorting.SortOrder.ToUpper()} ");
-                    }
+                    ApplySorting(cmd, commandText, sorting);
 
-                    if (paging != null)
-                    {
-                        commandText.Append(" OFFSET @OFFSET FETCH NEXT @ROWS ROWS ONLY;");
-                        cmd.Parameters.AddWithValue("@OFFSET", paging.PageNumber == 1 ? 0 : (paging.PageNumber - 1) * paging.Rpp);
-                        cmd.Parameters.AddWithValue("@ROWS", paging.Rpp);
-                    }
+                    ApplyPaging(cmd, commandText, paging);
 
                     cmd.CommandText = commandText.ToString();
                     connection.Open();
@@ -72,6 +50,45 @@ namespace Repository
             }
 
             return books;
+        }
+
+        private void ApplyFilters(NpgsqlCommand cmd, StringBuilder commandText, BookFilter bookFilter)
+        {
+            if (!string.IsNullOrEmpty(bookFilter.Title))
+            {
+                commandText.Append(" AND Book.Title ILIKE @title");
+                cmd.Parameters.AddWithValue("@title", $"%{bookFilter.Title}%");
+            }
+
+            if (!string.IsNullOrEmpty(bookFilter.Author))
+            {
+                commandText.Append(" AND Book.Author ILIKE @author");
+                cmd.Parameters.AddWithValue("@author", $"%{bookFilter.Author}%");
+            }
+
+            if (bookFilter.Quantity.HasValue)
+            {
+                commandText.Append(" AND Book.Quantity = @quantity");
+                cmd.Parameters.AddWithValue("@quantity", bookFilter.Quantity.Value);
+            }
+        }
+
+        private void ApplySorting(NpgsqlCommand cmd, StringBuilder commandText, Sorting sorting)
+        {
+            if (sorting != null)
+            {
+                commandText.Append($" ORDER BY {sorting.OrderBy} {sorting.SortOrder.ToUpper()} ");
+            }
+        }
+
+        private void ApplyPaging(NpgsqlCommand cmd, StringBuilder commandText, Paging paging)
+        {
+            if (paging != null)
+            {
+                commandText.Append(" OFFSET @OFFSET FETCH NEXT @ROWS ROWS ONLY;");
+                cmd.Parameters.AddWithValue("@OFFSET", paging.PageNumber == 1 ? 0 : (paging.PageNumber - 1) * paging.Rpp);
+                cmd.Parameters.AddWithValue("@ROWS", paging.Rpp);
+            }
         }
 
         public async Task<Book> GetBookByIdAsync(Guid id)

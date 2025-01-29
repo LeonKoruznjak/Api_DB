@@ -20,22 +20,9 @@ namespace Example.WebApi.Controllers
             _service = service;
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetBooksAsync()
-        //{
-        //    try
-        //    {
-        //        return books.Count > 0 ? Ok(books) : NotFound("Nema dostupnih knjiga");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Greška pri dohvaćanju knjiga: {ex.Message}");
-        //    }
-        //}
-
         [HttpGet]
-        public async Task<IActionResult> GetBooksAsync([FromQuery] string orderBy = "Id", [FromQuery] string sortOrder = "asc", [FromQuery] int pageNumber = 1, [FromQuery] int rpp = 10,
-            [FromQuery] string? author = null, [FromQuery] string? title = null, [FromQuery] int? quantity = null)
+        public async Task<IActionResult> GetBooksAsync(string orderBy = "Id", string sortOrder = "asc", int pageNumber = 1, int rpp = 10,
+            string? author = null, string? title = null, int? quantity = null)
         {
             try
             {

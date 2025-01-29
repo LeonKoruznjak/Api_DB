@@ -14,14 +14,8 @@ builder.Host
     .ConfigureContainer<ContainerBuilder>(containerBuilder =>
     {
         containerBuilder.RegisterType<BookRepository>().As<IBookRepository>();
-        containerBuilder.RegisterType<BookService>().As<IBookService>(); //klasika je TRANSIENT netreba nikaj pisat
-
-        // containerBuilder.RegisterType<BookService>().As<IBookService>().InstancePerLifetimeScope(); SCOPED
-
-        //containerBuilder.RegisterType<BookService>().As<IBookService>().SingleInstance(); SINGLETON
+        containerBuilder.RegisterType<BookService>().As<IBookService>();
     });
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

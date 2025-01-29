@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-      <ProjectReference Include="..\Common\Common.csproj" />
-      <ProjectReference Include="..\Model\Model.csproj" />
-	  <ProjectReference Include="..\Service\Service.csproj" />
+      <ProjectReference Include="..\Common\BookLibrary.Common.csproj" />
+      <ProjectReference Include="..\Model\BookLibrary.Model.csproj" />
+	  <ProjectReference Include="..\Service\BookLibrary.Service.csproj" />
   </ItemGroup>
 
 </Project>

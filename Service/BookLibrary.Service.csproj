@@ -9,11 +9,14 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="8.2.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Npgsql" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\Model\Model.csproj" />
+    <ProjectReference Include="..\Common\BookLibrary.Common.csproj" />
+    <ProjectReference Include="..\Model\BookLibrary.Model.csproj" />
+    <ProjectReference Include="..\Repository\BookLibrary.Repository.csproj" />
+    <ProjectReference Include="..\Service.Common\BookLibrary.Service.Common.csproj" />
   </ItemGroup>
 
 </Project>
