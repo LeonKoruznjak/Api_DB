@@ -34,10 +34,18 @@ namespace Example.WebApi.Controllers
         //}
 
         [HttpGet]
-        public async Task<IActionResult> GetBooksAsync([FromQuery] string orderBy = "Id", [FromQuery] string sortOrder = "asc", [FromQuery] int pageNumber = 1, [FromQuery] int rpp = 10)
+        public async Task<IActionResult> GetBooksAsync([FromQuery] string orderBy = "Id", [FromQuery] string sortOrder = "asc", [FromQuery] int pageNumber = 1, [FromQuery] int rpp = 10,
+            [FromQuery] string? author = null, [FromQuery] string? title = null, [FromQuery] int? quantity = null)
         {
             try
             {
+                var bookFilter = new BookFilter
+                {
+                    Author = author,
+                    Title = title,
+                    Quantity = quantity,
+                };
+
                 var sorting = new Sorting
                 {
                     OrderBy = orderBy,
@@ -50,7 +58,7 @@ namespace Example.WebApi.Controllers
                     Rpp = rpp
                 };
 
-                var books = await _service.GetAllBooksAsync(sorting, paging);
+                var books = await _service.GetAllBooksAsync(sorting, paging, bookFilter);
 
                 return books.Count > 0 ? Ok(books) : NotFound("Nema dostupnih knjiga");
             }

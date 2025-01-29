@@ -18,9 +18,9 @@ namespace Service
             _bookRepository = bookRepository;
         }
 
-        public async Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging)
+        public async Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging, BookFilter bookFilter)
         {
-            return await _bookRepository.GetAllBooksAsync(sorting, paging);
+            return await _bookRepository.GetAllBooksAsync(sorting, paging, bookFilter);
         }
 
         public async Task<Book> GetBookByIdAsync(Guid id)

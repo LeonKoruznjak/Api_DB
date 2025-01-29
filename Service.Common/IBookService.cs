@@ -10,7 +10,7 @@ namespace Service.Common
 {
     public interface IBookService
     {
-        Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging);
+        Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging, BookFilter bookFilter);
 
         Task<Book> GetBookByIdAsync(Guid id);
 

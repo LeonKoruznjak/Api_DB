@@ -13,7 +13,7 @@ namespace Repository
     {
         private const string CONNECTION_STRING = "Host=localhost:5432;Username=postgres;Password=leonpik7;Database=LibraryDB";
 
-        public async Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging)
+        public async Task<List<Book>> GetAllBooksAsync(Sorting sorting, Paging paging, BookFilter bookFilter)
         {
             var books = new List<Book>();
 
@@ -23,25 +23,49 @@ namespace Repository
                 {
                     cmd.Connection = connection;
 
-                    var commandText = new StringBuilder();
-                    commandText.Append("SELECT * FROM Book ");
+                    var commandText = new StringBuilder("SELECT * FROM Book WHERE 1 = 1 ");
+
+                    if (!string.IsNullOrEmpty(bookFilter.Title))
+                    {
+                        commandText.Append(" AND Book.Title ILIKE @title");
+                        cmd.Parameters.AddWithValue("@title", $"%{bookFilter.Title}%");
+                    }
+                    if (!string.IsNullOrEmpty(bookFilter.Author))
+                    {
+                        commandText.Append(" AND Book.Author ILIKE @author");
+                        cmd.Parameters.AddWithValue("@author", $"%{bookFilter.Author}%");
+                    }
+                    if (bookFilter.Quantity.HasValue)
+                    {
+                        commandText.Append(" AND Book.Quantity = @quantity");
+                        cmd.Parameters.AddWithValue("@quantity", bookFilter.Quantity.Value);
+                    }
+
                     if (sorting != null)
                     {
                         commandText.Append($" ORDER BY {sorting.OrderBy} {sorting.SortOrder.ToUpper()} ");
                     }
+
                     if (paging != null)
                     {
-                        commandText.Append($"OFFSET @OFFSET FETCH NEXT @ROWS ROWS ONLY;");
-                        cmd.Parameters.AddWithValue("@OFFSET", paging.PageNumber == 1 ? 0 : (paging.PageNumber - 1) * paging.Rpp); //bila je greska u +1, ako imamo 4 itema i zelimo dva po stranici, 2-1=1*2=2+1=3 i ofset je 3 onda znaci da prva 3 ne gledamo nego gledamo od 4. koji je ujedno i zadnji i zato je samo jednog izbacivao?
+                        commandText.Append(" OFFSET @OFFSET FETCH NEXT @ROWS ROWS ONLY;");
+                        cmd.Parameters.AddWithValue("@OFFSET", paging.PageNumber == 1 ? 0 : (paging.PageNumber - 1) * paging.Rpp);
                         cmd.Parameters.AddWithValue("@ROWS", paging.Rpp);
                     }
+
                     cmd.CommandText = commandText.ToString();
                     connection.Open();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
-                            books.Add(ReadBook(reader));
+                            books.Add(new Book()
+                            {
+                                Id = Guid.Parse(reader["Id"].ToString()!),
+                                Title = reader["Title"].ToString()!,
+                                Author = reader["Author"].ToString()!,
+                                Quantity = int.Parse(reader["Quantity"].ToString()!)
+                            });
                         }
                     }
                 }
